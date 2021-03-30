@@ -4,7 +4,7 @@
 /* Basic Modules */
 const express = require('express');
 
-/* Custom modules */
+/* Custom Modules */
 const indexRouter  = require('./routes/index.js')
 
 /* Creates app, specifies port */
