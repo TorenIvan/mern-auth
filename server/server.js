@@ -1,18 +1,21 @@
+/* ECMAScript and above */
+'use strict';
+
+/* Basic Modules */
 const express = require('express');
+const path    = require('path');
 
+/* Custom modules */
+const routes  = require('./routes/index.js')
+
+/* Creates app, specifies port */
 const app = express();
-
 const PORT = process.env.PORT || 5008;
 
-app.listen(PORT, () => {
-    console.log('listening....');
-})
+/* Serve static files */
+app.use(express.static(path.join(__dirname, '../client/public')));
 
-app.use(express.json());
+/* Router usage */
+app.use('/', routes);
 
-
-app.get('/', (req,res) => {
-    res.json({
-        message: "Hello me",
-    });
-})
+app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`));
