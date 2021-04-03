@@ -3,15 +3,25 @@
 
 /* Basic Modules */
 const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
 /* Custom Modules */
 const indexRouter  = require('./routes/index.js')
 
-/* Creates app, specifies port */
-const app  = express();
+//DB
+const db = 'mongodb://localhost/mern-auth'
+mongoose.connect(db, { useNewUrlParser: true })
+    .then(() => console.log('DB connected'))
+    .catch(err => console.log(err));
+
 const PORT = process.env.PORT || 5008;
 
 /* Router usage */
 app.use('/', indexRouter);
 
-app.listen(PORT, () => console.log(`Server listening on port: ${PORT}`));
+app.get('/', (req,res) => {
+    res.json({
+        message: "Hello me",
+    });
+})
