@@ -5,6 +5,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 
 /* Custom Modules */
 const indexRouter  = require('./routes/index.js')
@@ -18,7 +19,9 @@ mongoose.connect(db, { useNewUrlParser: true })
 const PORT = process.env.PORT || 5008;
 
 /* Router usage */
+app.use(helmet());
 app.use('/', indexRouter);
+
 
 app.get('/', (req,res) => {
     res.json({
