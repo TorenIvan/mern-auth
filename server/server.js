@@ -6,7 +6,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-const xss-clean = require('xss-clean');
+const xss = require('xss-clean');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 
@@ -15,17 +15,25 @@ const indexRouter  = require('./routes/index.js')
 
 //DB
 const db = 'mongodb://localhost/mern-auth'
-mongoose.connect(db, { useNewUrlParser: true })
+mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('DB connected'))
     .catch(err => console.log(err));
 
-const PORT = process.env.PORT || 5008;
+const port = process.env.PORT || 5008;
+const app  = express()
+
+app.listen(port, () => {
+	  console.log(`Example app listening at http://localhost:${port}`)
+});
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Security Middleware Handling
 /* Security Headers */
 app.use(helmet());
 /* XSS Prevention */
-app.use(xss-clean());
+app.use(xss());
 /* HTTP Parameter Pollution Prevention */
 app.use(hpp());
 /* Limiting package rate, prevent DDoS */

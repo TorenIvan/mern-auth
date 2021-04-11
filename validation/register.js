@@ -16,10 +16,10 @@ module.exports = function validateRegister( data ){
     }
 
     //Check password
-    if (Validator.isEmpty(data.password)) {
+    if (val.isEmpty(data.password)) {
         errors.password = "Password required";
     }
-    if (!Validator.isLength(data.password, { min: 6, max: 30 })) {
+    if (!val.isLength(data.password, { min: 6, max: 30 })) {
         errors.password = "Password must be at least 6 characters";
     }
 
