@@ -1,13 +1,11 @@
-const express    = require('express');
-const router     = express.Router();
-const path       = require('path');
-const userDB     = require('../../models/User');
-const validateR  = require('../../validation/register');
-const validateL  = require('../../validation/login');
-const bcrypt     = require('bcrypt');
-const sanitize   = require('mongo-sanitize');
-const mongoose   = require('mongoose');
-const db         = 'mongodb://localhost/mern-auth';
+const express      = require('express');
+const router       = express.Router();
+const path         = require('path');
+const user         = require('../../models/User');
+const valRegister  = require('../../validation/register');
+const valLogin     = require('../../validation/login');
+const bcrypt       = require('bcrypt');
+const sanitize     = require('mongo-sanitize');
 
 /* In order to generate the salt to hash the password */
 const saltRounds = 10;
@@ -18,50 +16,34 @@ router.get('/', function(req, res) {
   res.sendFile(path.resolve('client/public/index.html'));
 });
 
-router.post('/register', (req, res) => {
-  	/* Get request data using object destructuring */
-	var data = {email, password} = req.query;
-	console.log('Mpika register');
-	console.log(req.query);
-	/* Validate Data; return errors if exist*/
-	var valData = validateR(data);
-	console.log(data);
-	if(!valData.isValid) return res.json({errors: valData.errors});
-	console.log('Mpika meta ta validations');
+router.post('/register', async (req, res) => {
+	var data = {email, password} = req.body;
+
+	var valData = valRegister(data);
+	if(!valData.isValid) return res.json({error: valData.error});
 	
-	//Security check done in the server.js file using helmet, xss-clean, rate-limit, hpp
-  	/* Although the above is correct; we need to pay attention for other attacks like nosqli */
-	/* Sanitize input always */
 	email    = sanitize(email);
 	password = sanitize(password);
 
-	mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
-	.then(() => {
 	/* Check if user with same name already exists */
-  	db.collection('users').findOne({'email': email}, (err, user) => {
-		console.log('Mpika');
-		if(err) console.log('error during select user');
-		var userExists = true;
-		if(!user) userExists = false;
-		else return res.json({userExists: userExists});
-	});
-	/* Hash password by generating the salt and then combine it with password*/
-	bcrypt.genSalt(saltRounds, (err, salt) => {
-		bcrypt.hash(password, salt, (err, hash) => {
-			/* Insert user to db */
-			console.log(hash);
-			userDB.User.insertOne({email: email, password: hash}, (err) => {
-				if (err) {
-					console.log("Error during user insertion");
-					return res.json({error: error});
-				}else{
-					console.log("document inserted");
-				}
+	user.findOne({'email': email}, (error, sameUser) => {
+		if(error) return error;
+		if(sameUser) return res.json({userExists: true});
+	
+		/* Hash password by generating the salt and then combine it with password*/
+		bcrypt.genSalt(saltRounds, (error, salt) => {
+			if (error) throw error;
+			bcrypt.hash(password, salt, (error, hash) => {
+				if (error) throw error;
+				/* Insert user to db */
+				let newUser = new user({email: email, password: hash});
+				newUser.save((error) => {
+					if (error) return res.json({error: error});
+					res.json(newUser);
+				});
 			});
 		});
 	});
-	});
-
 });
 
 router.post('/login', (req, res) => {
@@ -86,3 +68,4 @@ router.post('/upload', (req, res) => {
 
 /* Export router */
 module.exports = router;
+

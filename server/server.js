@@ -3,21 +3,19 @@
 
 /* Basic Modules */
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
+const dotenv = require('dotenv').config();
+const connect = require('../models/connect');
+
+/* Connect to DataBase */
+connect();
 
 /* Custom Modules */
-const indexRouter  = require('./routes/index.js')
-
-//DB
-const db = 'mongodb://localhost/mern-auth'
-mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('DB connected'))
-    .catch(err => console.log(err));
+const indexRouter  = require('./routes/index')
 
 const port = process.env.PORT || 5008;
 const app  = express()
@@ -26,8 +24,8 @@ app.listen(port, () => {
 	  console.log(`Example app listening at http://localhost:${port}`)
 });
 
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json()); // for parsing application/json
+app.use(express.urlencoded({ extended: true }));
 
 // Security Middleware Handling
 /* Security Headers */
