@@ -34,11 +34,10 @@ const handleRefreshToken = (req, res, next) => {
     user.findOne({token: token}, (error, exists) => {
         if (error) throw error;
         if (!exists) return res.sendStatus(403).json({success: false, tokenExists: false});
-        console.log('Mpika 1');
+
         jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (error, user) => {
             if(error) return res.sendStatus(403).json({forbidden: true});
-            console.log('Mpika 2');
-            //We found the user, verified the refresh token
+            //We found the user, verified the refresh token, generate access token and pass it to response
             let accessToken = generateAccessToken(user.id);
             return res.json({success: true, accessToken: accessToken});
         });

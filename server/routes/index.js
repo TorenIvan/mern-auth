@@ -4,23 +4,13 @@ const path     = require('path');
 const user     = require('../../models/User');
 const bcrypt   = require('bcrypt');
 const passport = require('passport');
-const multer   = require('multer');
+const fs       = require('fs');
 
-const {validateRegister, validateLogin}  = require('./validations');
+const {validateRegister, validateLogin, validateOptions}  = require('./validations');
 const {generateAccessToken, generateRefreshToken, verifyAccessToken, handleRefreshToken}  = require('./tokens');
+const {uploadProfilePic} = require('../controllers/imageHandler');
 
 const saltRounds = 10;
-
-//Set up multer for storing uploaded files
-var storage = multer.diskStorage({
-	destination: (req, file, cb) => {
-		cb(null, 'uploads')
-	},
-	filename: (req, file, cb) => {
-		cb(null, file.fieldname + '-' + Date.now())
-	}
-});
-var upload = multer({ storage: storage });
 
 router.use('/', express.static(path.resolve('client/public')));
 
@@ -120,28 +110,32 @@ router.post('/profile', verifyAccessToken, (req, res) => {
 	res.json(req.user);
 });
 
-router.post('/edit', upload.single('image'), (req, res) => {
-	var obj = {
-        image: {
-            data: fs.readFileSync(path.join(__dirname + '/uploads/' + req.file.filename)),
-            contentType: 'image/png',
-        }
-    }
-    user.create(obj, (error, item) => {
-        if (error) {
-            console.log(error);
-			return res.json(obj);
-        }
-        else {
-            item.save();
-            res.redirect('/');
-        }
-    });
+
+router.post('/edit', verifyAccessToken, uploadProfilePic, (req, res) => {
+	if(req.file){
+		let obj = {
+			image: {
+				data: fs.readFileSync(req.file.path),
+			}
+		}
+		req.user.image = obj;
+		req.user.save((error) => {
+			if (error) {
+				console.log(error);
+				return res.json(obj);
+			}else{
+				res.redirect('/');
+			}
+		});
+	}else{
+		return JSON.stringify('No req.file found');
+	}
 });
 
 
 router.post('/upload', (req, res) => {
-
+	
+	//
 });
 
 /* Export router */

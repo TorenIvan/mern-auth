@@ -26,7 +26,6 @@ const userSchema = new Schema({
     },
     image: { 
         data: Buffer, 
-        contentType: String,
      },
      token: {
          type: String,
