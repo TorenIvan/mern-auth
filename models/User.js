@@ -8,8 +8,30 @@ const userSchema = new Schema({
     },
     password: {
         type: String,
+        trim: true,
         required: true
     },
+    name : {
+        type: String,
+        trim: true, 
+        default: null,
+    },
+    bio: [{
+        type: String,
+        default: '',
+    }],
+    phone: {
+        type: Number,
+        default: null,
+    },
+    image: { 
+        data: Buffer, 
+        contentType: String,
+     },
+     token: {
+         type: String,
+         default: null,
+     }
 });
 
 module.exports = User = mongoose.model('users', userSchema);

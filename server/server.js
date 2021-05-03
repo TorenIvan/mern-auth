@@ -10,6 +10,8 @@ const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const dotenv = require('dotenv').config();
 const connect = require('../models/connect');
+const passport = require('passport');
+const cookieParser = require('cookie-parser');
 
 /* Connect to DataBase */
 connect();
@@ -26,6 +28,9 @@ app.listen(port, () => {
 
 app.use(express.json()); // for parsing application/json
 app.use(express.urlencoded({ extended: true }));
+
+app.use(passport.initialize());
+app.use(cookieParser());
 
 // Security Middleware Handling
 /* Security Headers */
